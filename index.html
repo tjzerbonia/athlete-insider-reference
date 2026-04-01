@@ -19,12 +19,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-
 .back-btn{background:none;border:1px solid rgba(255,255,255,.25);color:#aaa;font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:4px 11px;border-radius:3px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;transition:all .15s;flex-shrink:0;}
 .back-btn:hover{color:#fff;border-color:rgba(255,255,255,.6);}
 .back-btn svg{width:10px;height:10px;fill:currentColor;}
-.search-area{flex:1;display:flex;align-items:center;background:#fff;border-radius:2px;overflow:hidden;position:relative;min-height:36px;}
+.search-area{flex:1;display:flex;align-items:center;background:#fff;border-radius:2px;position:relative;min-height:36px;}
 .search-area input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:var(--font-body);font-size:13px;padding:6px 12px;}
 .search-area input::placeholder{color:var(--ink4);}
-.search-btn{background:var(--accent);border:none;color:#fff;font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:0 14px;height:100%;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.search-btn{background:var(--accent);border:none;color:#fff;font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:0 12px;height:100%;min-height:36px;cursor:pointer;transition:background .15s;white-space:nowrap;border-radius:0 2px 2px 0;flex-shrink:0;}
 .search-btn:hover{background:#a00;}
-.ac-list{display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;border:1px solid var(--border);border-top:none;box-shadow:0 3px 8px rgba(0,0,0,.12);max-height:280px;overflow-y:auto;}
+.ac-list{display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:#fff;color:var(--ink);border:1px solid var(--border);border-top:none;box-shadow:0 3px 8px rgba(0,0,0,.12);max-height:280px;overflow-y:auto;}
 .ac-list.show{display:block;}
 .ac-item{padding:7px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--paper3);display:flex;align-items:center;gap:10px;}
 .ac-item:last-child{border-bottom:none;}
@@ -240,7 +240,7 @@ tbody td{padding:6px 10px;color:var(--ink);}
     </div>
     <div class="search-area">
       <input type="text" id="search-input" placeholder="Search a player name..." autocomplete="off" oninput="onSearchInput()" onkeydown="onSearchKey(event)">
-      <button class="search-btn" onclick="doSearch()">Search</button>
+      <button class="search-btn" onclick="doSearch()">Go</button>
       <div class="ac-list" id="ac-list"></div>
     </div>
     <a href="https://athleteinsider.org" target="_blank" class="back-btn">

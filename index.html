@@ -1699,3 +1699,48 @@ function gameSubmit(){
   gs.guessesUsed++;
 
   // Check: player already used?
+  if(gs.usedPlayers.indexOf(matched)>=0){
+    cell.wrong = true;
+    gs.guessResults.push('wrong');
+    checkGameOver();
+    renderGame();
+    return;
+  }
+
+  // Check: correct answer?
+  if(cell.answers.indexOf(matched)>=0){
+    var pts = playerRarityScore(matched) + cellBonus(cell.answerCount);
+    cell.filled = true;
+    cell.answer = matched;
+    cell.score  = pts;
+    cell.wrong  = false;
+    gs.usedPlayers.push(matched);
+    gs.score += pts;
+    gs.guessResults.push('correct');
+    gs.selectedCell = null;
+  } else {
+    cell.wrong = true;
+    gs.guessResults.push('wrong');
+    gs.selectedCell = null;
+  }
+
+  checkGameOver();
+  renderGame();
+}
+
+function checkGameOver(){
+  var gs = gameState;
+  var allFilled = gs.grid.cells.every(function(c){ return c.filled; });
+  if(allFilled || gs.guessesUsed>=gs.maxGuesses) gs.over=true;
+}
+
+function resetGame(){
+  window._gameSeedOffset = (window._gameSeedOffset||0) + Math.floor(Math.random()*10000) + 1;
+  gameState = null;
+  initGame();
+}
+
+
+</script>
+</body>
+</html>

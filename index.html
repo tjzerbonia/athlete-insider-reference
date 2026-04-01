@@ -119,6 +119,8 @@ tbody td{padding:6px 10px;color:var(--ink);}
 .modal-title{font-family:var(--font-head);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;flex:1;}
 .modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink3);line-height:1;padding:0 4px;}
 .modal-close:hover{color:var(--ink);}
+.modal-tab-btn{background:none;border:1px solid var(--border);border-radius:3px;font-family:var(--font-head);font-size:11px;font-weight:600;letter-spacing:.05em;padding:3px 10px;cursor:pointer;color:var(--ink3);}
+.modal-tab-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
 .modal-body{overflow-y:auto;flex:1;}
 .modal-body table{width:100%;border-collapse:collapse;font-size:13px;}
 .modal-body thead th{background:#1a1a1a;color:#fff;padding:6px 12px;font-family:var(--font-head);font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;position:sticky;top:0;}
@@ -331,6 +333,7 @@ tbody td{padding:6px 10px;color:var(--ink);}
       <div class="modal-title" id="modal-title">—</div>
       <button class="modal-close" onclick="document.getElementById('year-modal').classList.remove('open')">&times;</button>
     </div>
+    <div id="modal-tabs" style="display:none;padding:8px 16px;border-bottom:1px solid var(--border);gap:6px;flex-wrap:wrap;"></div>
     <div class="modal-body">
       <table><thead><tr>
         <th style="width:28px">#</th>
@@ -544,7 +547,7 @@ function loadPlayer(name){
       var teamPart = s.team.toLowerCase();
       var src = 'Uniform%20History/icon_'+namePart+'_'+teamPart+'.png';
       var years = s.startYear===s.endYear ? s.startYear : s.startYear+'–'+s.endYear;
-      iconsHtml += '<div class="uniform-icon-wrap"><img src="'+src+'" alt="'+s.team+'" title="'+s.team+' · '+years+'" onerror="this.parentElement.style.display=\'none\'"><div class="uniform-icon-years">'+years+'</div></div>';
+      iconsHtml += '<div class="uniform-icon-wrap"><img src="'+src+'" alt="'+s.team+'" title="'+s.team+' · '+years+'" style="cursor:pointer" onclick="openTeamModal('+JSON.stringify(s)+')" onerror="this.parentElement.style.display=\'none\'"><div class="uniform-icon-years">'+years+'</div></div>';
     });
     uniformEl.innerHTML = '<div class="uniform-history-title">Uniform History</div><div class="uniform-icons">'+iconsHtml+'</div>';
   }
@@ -1159,6 +1162,7 @@ function openYearModal(year, race){
   // Sort by time ascending
   rows.sort(function(a,b){ return tSec(a.time)-tSec(b.time); });
 
+  document.getElementById('modal-tabs').style.display='none';
   document.getElementById('modal-title').textContent = year + ' — ' + race;
 
   var tbody = '';
@@ -1181,6 +1185,47 @@ function openYearModal(year, race){
   document.getElementById('year-modal').classList.add('open');
 }
 
+function openTeamModal(stint){
+  var years=[];
+  for(var y=stint.startYear;y<=stint.endYear;y++) years.push(y);
+  var tabsEl=document.getElementById('modal-tabs');
+  if(years.length>1){
+    tabsEl.style.display='flex';
+    tabsEl.innerHTML='';
+    years.forEach(function(y){
+      var btn=document.createElement('button');
+      btn.className='modal-tab-btn';
+      btn.textContent=y;
+      btn.dataset.team=stint.team;
+      btn.dataset.year=y;
+      btn.addEventListener('click',function(){ renderTeamRoster(this.dataset.team,+this.dataset.year,this); });
+      tabsEl.appendChild(btn);
+    });
+  } else {
+    tabsEl.style.display='none';
+  }
+  renderTeamRoster(stint.team,stint.startYear,null);
+  if(years.length>1) tabsEl.querySelectorAll('.modal-tab-btn')[0].classList.add('active');
+  document.getElementById('year-modal').classList.add('open');
+}
+function renderTeamRoster(team,year,btn){
+  document.getElementById('modal-title').textContent=team+' · '+year;
+  if(btn){
+    btn.closest('#modal-tabs').querySelectorAll('.modal-tab-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+  }
+  var roster=DATA.football.filter(function(r){return r.team===team&&r.year===year;});
+  roster.sort(function(a,b){return a.player<b.player?-1:1;});
+  var tbody='';
+  roster.forEach(function(r){
+    var isVisible=allNames.indexOf(r.player)>=0;
+    var nameCell=isVisible
+      ?'<td class="modal-name" data-name="'+r.player+'" onclick="handleModalNameClick(this)">'+r.player+'</td>'
+      :'<td>'+r.player+'</td>';
+    tbody+='<tr>'+nameCell+'<td class="modal-time">'+(r.result||'')+'</td></tr>';
+  });
+  document.getElementById('modal-tbody').innerHTML=tbody;
+}
 function closeYearModal(e){
   if(e.target === document.getElementById('year-modal'))
     document.getElementById('year-modal').classList.remove('open');
@@ -1635,48 +1680,3 @@ function gameSubmit(){
   gs.guessesUsed++;
 
   // Check: player already used?
-  if(gs.usedPlayers.indexOf(matched)>=0){
-    cell.wrong = true;
-    gs.guessResults.push('wrong');
-    checkGameOver();
-    renderGame();
-    return;
-  }
-
-  // Check: correct answer?
-  if(cell.answers.indexOf(matched)>=0){
-    var pts = playerRarityScore(matched) + cellBonus(cell.answerCount);
-    cell.filled = true;
-    cell.answer = matched;
-    cell.score  = pts;
-    cell.wrong  = false;
-    gs.usedPlayers.push(matched);
-    gs.score += pts;
-    gs.guessResults.push('correct');
-    gs.selectedCell = null;
-  } else {
-    cell.wrong = true;
-    gs.guessResults.push('wrong');
-    gs.selectedCell = null;
-  }
-
-  checkGameOver();
-  renderGame();
-}
-
-function checkGameOver(){
-  var gs = gameState;
-  var allFilled = gs.grid.cells.every(function(c){ return c.filled; });
-  if(allFilled || gs.guessesUsed>=gs.maxGuesses) gs.over=true;
-}
-
-function resetGame(){
-  window._gameSeedOffset = (window._gameSeedOffset||0) + Math.floor(Math.random()*10000) + 1;
-  gameState = null;
-  initGame();
-}
-
-
-</script>
-</body>
-</html>

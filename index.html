@@ -763,7 +763,7 @@ function buildOffTable(allRows, hasPassing, hasRushing, hasReceiving){
       tbody += '<tr><td class="td-yr"><span class="td-yr-link" data-year="'+r.year+'" data-race="Cheramy Bowl" onclick="handleYearClick(this)">'+r.year+'</span></td>'
         +'<td style="font-size:12px">'+r.team+'</td>'
         +'<td class="'+(r.result.startsWith('W')?'td-w':'td-l')+'">'+r.result+'</td>'
-        +'<td class="td-dash" colspan="15">— stats not recorded —</td></tr>';
+        +'<td class="td-dash" colspan="7">— stats not recorded —</td></tr>';
       return;
     }
     var ypa = r.rush_att>0 ? (r.rush_yds/r.rush_att).toFixed(1) : '—';
@@ -811,7 +811,7 @@ function buildOffTable(allRows, hasPassing, hasRushing, hasReceiving){
     tbody += '</tr>';
   }
 
-  return '<div class="tbl-wrap"><table style="table-layout:fixed;min-width:760px">'
+  return '<div class="tbl-wrap"><table style="table-layout:fixed;width:100%">'
     +'<colgroup>'
     +'<col style="width:46px"><col style="width:64px"><col style="width:80px">'
     +'<col style="width:40px"><col style="width:40px"><col style="width:46px"><col style="width:36px"><col style="width:36px">'
@@ -824,60 +824,27 @@ function buildOffTable(allRows, hasPassing, hasRushing, hasReceiving){
 
 function buildDefTable(allRows, statRows){
   if(statRows === undefined) statRows = allRows;
-  // Columns: Year(1) | Team(1) | Result(1) | TKL | TFL | SK | INT | INT TD | PD | SFTY = 10 stat cols
-  // Padded with 8 empty cols on right to match offense table total width of 18
-  var groupCells = '<th colspan="3" style="background:var(--ink2)"></th>'
-    +'<th colspan="7">Defense</th>'
-    +'<th colspan="8" style="background:var(--ink2)"></th>';
+  var groupCells = '<th colspan="3" style="background:var(--ink2)"></th>'    +'<th colspan="7">Defense</th>';
 
-  var colHdr = '<th>Year</th><th>Team</th><th>Result</th>'
-    +'<th class="th-r">TKL</th><th class="th-r">TFL</th><th class="th-r">SK</th>'
-    +'<th class="th-r">INT</th><th class="th-r">INT TD</th><th class="th-r">PD</th><th class="th-r">SFTY</th>'
-    +'<th colspan="8" style="background:var(--ink)"></th>';
+  var colHdr = '<th>Year</th><th>Team</th><th>Result</th>'    +'<th class="th-r">TKL</th><th class="th-r">TFL</th><th class="th-r">SK</th>'    +'<th class="th-r">INT</th><th class="th-r">INT TD</th><th class="th-r">PD</th><th class="th-r">SFTY</th>';
 
   var tbody = '';
   allRows.forEach(function(r){
     if(r.stats_recorded===false){
-      tbody += '<tr><td class="td-yr">'+r.year+'</td>'
-        +'<td style="font-size:12px">'+r.team+'</td>'
-        +'<td class="'+(r.result.startsWith('W')?'td-w':'td-l')+'">'+r.result+'</td>'
-        +'<td class="td-dash" colspan="15">— stats not recorded —</td></tr>';
+      tbody += '<tr><td class="td-yr">'+r.year+'</td>'        +'<td style="font-size:12px">'+r.team+'</td>'        +'<td class="'+(r.result.startsWith('W')?'td-w':'td-l')+'">'+r.result+'</td>'        +'<td class="td-dash" colspan="7">— stats not recorded —</td></tr>';
       return;
     }
-    tbody += '<tr><td class="td-yr">'+r.year+'</td>'
-      +'<td style="font-size:12px">'+r.team+'</td>'
-      +'<td class="'+(r.result.startsWith('W')?'td-w':'td-l')+'">'+r.result+'</td>'
-      +'<td class="td-nb">'+r.def_tkl+'</td>'
-      +'<td class="td-n">'+r.def_tfl+'</td>'
-      +'<td class="td-n">'+r.def_sk+'</td>'
-      +'<td class="td-nb">'+r.def_int+'</td>'
-      +'<td class="td-n">'+r.def_inttd+'</td>'
-      +'<td class="td-n">'+r.def_pd+'</td>'
-      +'<td class="td-n">'+r.def_sfty+'</td>'
-      +'<td colspan="8"></td>'
-      +'</tr>';
+    tbody += '<tr><td class="td-yr">'+r.year+'</td>'      +'<td style="font-size:12px">'+r.team+'</td>'      +'<td class="'+(r.result.startsWith('W')?'td-w':'td-l')+'">'+r.result+'</td>'      +'<td class="td-nb">'+r.def_tkl+'</td>'      +'<td class="td-n">'+r.def_tfl+'</td>'      +'<td class="td-n">'+r.def_sk+'</td>'      +'<td class="td-nb">'+r.def_int+'</td>'      +'<td class="td-n">'+r.def_inttd+'</td>'      +'<td class="td-n">'+r.def_pd+'</td>'      +'<td class="td-n">'+r.def_sfty+'</td>'      +'</tr>';
   });
 
   if(statRows.length){
     var t = agg(statRows);
-    tbody += '<tr class="tot-row"><td colspan="3" class="tot-label">Totals</td>'
-      +'<td class="td-nb">'+t.def_tkl+'</td><td class="td-nb">'+t.def_tfl+'</td>'
-      +'<td class="td-nb">'+t.def_sk+'</td><td class="td-nb">'+t.def_int+'</td>'
-      +'<td class="td-nb">'+t.def_inttd+'</td><td class="td-nb">'+t.def_pd+'</td><td class="td-nb">'+t.def_sfty+'</td>'
-      +'<td colspan="8"></td></tr>';
+    tbody += '<tr class="tot-row"><td colspan="3" class="tot-label">Totals</td>'      +'<td class="td-nb">'+t.def_tkl+'</td><td class="td-nb">'+t.def_tfl+'</td>'      +'<td class="td-nb">'+t.def_sk+'</td><td class="td-nb">'+t.def_int+'</td>'      +'<td class="td-nb">'+t.def_inttd+'</td><td class="td-nb">'+t.def_pd+'</td><td class="td-nb">'+t.def_sfty+'</td></tr>';
   }
 
-  return '<div class="tbl-wrap"><table style="table-layout:fixed;min-width:760px">'
-    +'<colgroup>'
-    +'<col style="width:46px"><col style="width:64px"><col style="width:80px">'
-    +'<col style="width:40px"><col style="width:40px"><col style="width:46px"><col style="width:36px"><col style="width:50px"><col style="width:36px"><col style="width:46px">'
-    +'<col><col><col><col><col><col><col><col>'
-    +'</colgroup>'
-    +'<thead><tr class="th-group-row">'+groupCells+'</tr><tr>'+colHdr+'</tr></thead>'
-    +'<tbody>'+tbody+'</tbody></table></div>';
+  return '<div class="tbl-wrap"><table style="table-layout:fixed;width:100%">'    +'<colgroup>'    +'<col style="width:46px"><col style="width:64px"><col style="width:80px">'    +'<col><col><col><col><col><col><col>'    +'</colgroup>'    +'<thead><tr class="th-group-row">'+groupCells+'</tr><tr>'+colHdr+'</tr></thead>'    +'<tbody>'+tbody+'</tbody></table></div>';
 }
 
-// ─── LEADERBOARDS ─────────────────────────────────────────────────────────
 function buildLeaderboards(){
   var el = document.getElementById('leaders-content');
   if(el.innerHTML !== '') return; // already built

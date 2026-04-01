@@ -1557,8 +1557,8 @@ function renderGame(){
       html += '<div class="'+cls+'" style="'+cellStyle+'" onclick="selectCell('+idx+')">';
       if(cell.filled){
         var scoreCls = cell.score<=50?'common':cell.score<=90?'medium':'';
-        var photo = DATA.player_info[cell.answer] && DATA.player_info[cell.answer].photo;
-        if(photo) html += '<img class="game-cell-photo" src="'+photo+'" alt="'+cell.answer+'">';
+        var photo = (DATA.player_info[cell.answer] && DATA.player_info[cell.answer].photo) || 'Headshots%20PFF/profile_default.jpg';
+        html += '<img class="game-cell-photo" src="'+photo+'" onerror="this.src=\'Headshots%20PFF/profile_default.jpg\'" alt="'+cell.answer+'">';
         html += '<div class="game-cell-name">'+cell.answer+'</div>';
         html += '<div class="game-cell-score '+scoreCls+'">+'+cell.score+'</div>';
       } else if(cell.wrong){

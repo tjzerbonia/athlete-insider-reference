@@ -765,7 +765,7 @@ function buildOffTable(allRows, hasPassing, hasRushing, hasReceiving){
   var nd = '<td class="td-n">—</td>';
   allRows.forEach(function(r){
     if(r.stats_recorded===false){
-      tbody += '<tr><td class="td-yr"><span class="td-yr-link" data-year="'+r.year+'" data-race="Cheramy Bowl" onclick="handleYearClick(this)">'+r.year+'</span></td>'
+      tbody += '<tr><td class="td-yr">'+r.year+'</td>'
         +'<td style="font-size:12px">'+r.team+'</td>'
         +'<td class="'+(r.result.startsWith('W')?'td-w':'td-l')+'">'+r.result+'</td>'
         +'<td class="td-dash" colspan="7">— stats not recorded —</td></tr>';

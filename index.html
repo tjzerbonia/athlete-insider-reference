@@ -508,9 +508,13 @@ function loadPlayer(name){
   // Photo or initials
   var photoEl = document.getElementById('p-photo');
   var initials = name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
-  photoEl.innerHTML = info.photo
-    ? '<img src="'+info.photo+'" alt="'+name+'" onerror="this.src=\'Headshots%20PFF/profile_default.jpg\'">'
-    : '<span>'+initials+'</span>';
+  var photoSrc = info.photo || 'Headshots%20PFF/profile_default.jpg';
+  var photoImg = document.createElement('img');
+  photoImg.src = photoSrc;
+  photoImg.alt = name;
+  photoImg.addEventListener('error', function(){ this.src='Headshots%20PFF/profile_default.jpg'; });
+  photoEl.innerHTML = '';
+  photoEl.appendChild(photoImg);
 
   // Maiden name
   var maidenEl = document.getElementById('p-maiden');

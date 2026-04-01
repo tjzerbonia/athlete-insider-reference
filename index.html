@@ -542,14 +542,33 @@ function loadPlayer(name){
       }
     });
     var namePart = name.toLowerCase().replace(/[^a-z]/g,'');
-    var iconsHtml = '';
+    uniformEl.innerHTML = '<div class="uniform-history-title">Uniform History</div><div class="uniform-icons" id="uniform-icons-row"></div>';
+    var iconsRow = document.getElementById('uniform-icons-row');
     stints.forEach(function(s){
       var teamPart = s.team.toLowerCase();
       var src = 'Uniform%20History/icon_'+namePart+'_'+teamPart+'.png';
-      var years = s.startYear===s.endYear ? s.startYear : s.startYear+'–'+s.endYear;
-      iconsHtml += '<div class="uniform-icon-wrap"><img src="'+src+'" alt="'+s.team+'" title="'+s.team+' · '+years+'" style="cursor:pointer" onclick="openTeamModal('+JSON.stringify(s)+')" onerror="this.parentElement.style.display=\'none\'"><div class="uniform-icon-years">'+years+'</div></div>';
+      var years = s.startYear===s.endYear ? String(s.startYear) : s.startYear+'–'+s.endYear;
+      var wrap = document.createElement('div');
+      wrap.className = 'uniform-icon-wrap';
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = s.team;
+      img.title = s.team+' · '+years;
+      img.style.cursor = 'pointer';
+      img.dataset.team = s.team;
+      img.dataset.startYear = s.startYear;
+      img.dataset.endYear = s.endYear;
+      img.addEventListener('click', function(){
+        openTeamModal({team:this.dataset.team, startYear:+this.dataset.startYear, endYear:+this.dataset.endYear});
+      });
+      img.addEventListener('error', function(){ this.parentElement.style.display='none'; });
+      var yearDiv = document.createElement('div');
+      yearDiv.className = 'uniform-icon-years';
+      yearDiv.textContent = years;
+      wrap.appendChild(img);
+      wrap.appendChild(yearDiv);
+      iconsRow.appendChild(wrap);
     });
-    uniformEl.innerHTML = '<div class="uniform-history-title">Uniform History</div><div class="uniform-icons">'+iconsHtml+'</div>';
   }
 
   // Badges

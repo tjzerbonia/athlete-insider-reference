@@ -1367,9 +1367,46 @@ function seededRng(seed){
   };
 }
 
+var GRID_EPOCH = new Date(2026,3,4); // April 4 2026 = Grid #1
+
+function todayGridNum(){
+  var today = new Date(); today = new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  var epoch = new Date(GRID_EPOCH.getFullYear(),GRID_EPOCH.getMonth(),GRID_EPOCH.getDate());
+  return Math.max(1, Math.floor((today-epoch)/86400000)+1);
+}
+function gridNumToDate(n){
+  var d = new Date(GRID_EPOCH.getFullYear(),GRID_EPOCH.getMonth(),GRID_EPOCH.getDate());
+  d.setDate(d.getDate()+n-1);
+  return d;
+}
 function dateSeed(){
-  var d = new Date();
-  return d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate() + (window._gameSeedOffset||0);
+  var g = window._currentGridNum || todayGridNum();
+  return g * 7919;
+}
+function getStreak(){
+  try{ return JSON.parse(localStorage.getItem('ai_streak'))||{current:0,best:0,lastGrid:0}; }catch(e){ return {current:0,best:0,lastGrid:0}; }
+}
+function saveGridResult(gridNum,score,correct){
+  try{
+    var existing = getGridResult(gridNum);
+    if(!existing) localStorage.setItem('ai_grid_'+gridNum, JSON.stringify({score:score,correct:correct}));
+    if(gridNum===todayGridNum()){
+      var s=getStreak();
+      if(s.lastGrid!==gridNum){
+        s.current = (s.lastGrid===gridNum-1) ? s.current+1 : 1;
+        s.lastGrid=gridNum; s.best=Math.max(s.best||0,s.current);
+        localStorage.setItem('ai_streak',JSON.stringify(s));
+      }
+    }
+  }catch(e){}
+}
+function getGridResult(gridNum){
+  try{ return JSON.parse(localStorage.getItem('ai_grid_'+gridNum)); }catch(e){ return null; }
+}
+function goToGrid(num){
+  var today=todayGridNum();
+  if(num<1||num>today) return;
+  window._currentGridNum=num; gameState=null; initGame();
 }
 
 function shuffleSeeded(arr, rng){
@@ -1509,24 +1546,29 @@ function buildDailyGrid(){
 }
 
 function initGame(){
-  if(gameState && gameState.initialized) return; // already built
+  if(gameState && gameState.initialized) return;
+  if(window._currentGridNum===undefined||window._currentGridNum===null) window._currentGridNum=todayGridNum();
   var grid = buildDailyGrid();
   gameState = {
     initialized: true,
     grid: grid,
+    gridNum: window._currentGridNum,
     guessesUsed: 0,
     maxGuesses: 9,
     score: 0,
     usedPlayers: [],
-    guessResults: [], // 'correct' | 'wrong'
+    guessResults: [],
     selectedCell: null,
     over: false,
   };
-
-  var d = new Date();
-  document.getElementById('game-meta').textContent =
-    'Daily Grid — ' + (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
-
+  var gn = window._currentGridNum, today = todayGridNum();
+  var gd = gridNumToDate(gn);
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var label = gn===today ? 'Today' : gn===today-1 ? 'Yesterday' : months[gd.getMonth()]+' '+gd.getDate()+', '+gd.getFullYear();
+  var s = getStreak();
+  var streakTxt = s.current>0 ? '&nbsp;·&nbsp;&#128293; '+s.current+(s.current===1?' day':' days') : '';
+  document.getElementById('game-meta').innerHTML =
+    'Grid #'+gn+' &nbsp;·&nbsp; '+label+streakTxt;
   renderGame();
 }
 
@@ -1621,12 +1663,25 @@ function renderGame(){
     html += '</div>';
   }
 
+  // Archive navigation
+  var gn = gs.gridNum || todayGridNum(), todayGn = todayGridNum();
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0 4px;font-family:var(--font-head);font-size:11px;letter-spacing:.06em;text-transform:uppercase;">';
+  html += '<button onclick="goToGrid('+(gn-1)+')" style="background:none;border:1px solid var(--border);padding:3px 10px;cursor:pointer;font-family:var(--font-head);font-size:11px;"'+(gn<=1?' disabled':'')+'>&lsaquo; Prev</button>';
+  html += '<span style="color:var(--ink3);">Grid #'+gn+'</span>';
+  html += '<button onclick="goToGrid('+(gn+1)+')" style="background:none;border:1px solid var(--border);padding:3px 10px;cursor:pointer;font-family:var(--font-head);font-size:11px;"'+(gn>=todayGn?' disabled':'')+'> Next &rsaquo;</button>';
+  html += '</div>';
+
   // Game over banner
   if(gs.over){
+    saveGridResult(gs.gridNum, gs.score, gs.guessResults.filter(function(r){return r==='correct';}).length);
     var correct = gs.guessResults.filter(function(r){return r==='correct';}).length;
+    var s = getStreak();
     html += '<div class="game-over-banner">';
     html += '<div class="game-over-title">'+(correct===9?'🏆 Perfect Grid!':correct>=6?'Great job!':correct>=3?'Not bad!':'Better luck next time!')+'</div>';
     html += '<div class="game-over-sub">'+correct+' of 9 correct &nbsp;·&nbsp; Final score: <strong>'+gs.score+'</strong></div>';
+    if(gs.gridNum===todayGn && s.current>0){
+      html += '<div style="margin-top:6px;font-size:13px;">&#128293; '+s.current+' day streak'+(s.best>s.current?' &nbsp;·&nbsp; Best: '+s.best:'')+'</div>';
+    }
     html += '</div>';
   }
 
@@ -1737,7 +1792,7 @@ function checkGameOver(){
 }
 
 function resetGame(){
-  window._gameSeedOffset = (window._gameSeedOffset||0) + Math.floor(Math.random()*10000) + 1;
+  window._currentGridNum = Math.floor(Math.random()*90000)+10000; // random practice grid
   gameState = null;
   initGame();
 }

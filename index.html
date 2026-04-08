@@ -529,7 +529,8 @@ function loadPlayer(name){
   // Photo or initials
   var photoEl = document.getElementById('p-photo');
   var initials = name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
-  var photoSrc = info.photo || 'Headshots%20PFF/profile_default.jpg';
+  var autoPath = 'Headshots%20PFF/profile_' + encodeURIComponent(name) + '.jpg';
+  var photoSrc = info.photo || autoPath;
   var photoImg = document.createElement('img');
   photoImg.src = photoSrc;
   photoImg.alt = name;

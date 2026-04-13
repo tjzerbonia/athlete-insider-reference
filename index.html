@@ -655,21 +655,25 @@ function buildAwardsSection(awards, bixWins){
 
   var bixCards = '';
   var bixLogoH = (LOGO_HEIGHTS['bix'] || 44) + 'px';
-  var bixLogo = '<img src="race%20logo\'s/bix.png" alt="" style="display:block;height:'+bixLogoH+';width:auto;max-width:100%;margin:0 auto 8px;object-fit:contain" onerror="this.style.display=\'none\'">';
+  var bixLogo = '<img src="race%20logo%27s/bix.png" alt="" style="height:'+bixLogoH+';width:auto;object-fit:contain;flex-shrink:0" onerror="this.style.display=\'none\'">';
   bix7Wins.forEach(function(w){
-    bixCards += '<div class="award-card award-card-bix">'
-      +bixLogo
+    bixCards += '<div class="award-card award-card-bix" style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+      +'<div>'
       +'<div class="award-card-label award-label-bix">Bix 7 Fastest</div>'
       +'<div class="award-card-val">'+w.year+'</div>'
       +'<div class="award-card-sub">'+w.time+'</div>'
+      +'</div>'
+      +bixLogo
       +'</div>';
   });
   qbixWins.forEach(function(w){
-    bixCards += '<div class="award-card award-card-qbix">'
-      +bixLogo
+    bixCards += '<div class="award-card award-card-qbix" style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+      +'<div>'
       +'<div class="award-card-label award-label-qbix">Quick Bix Fastest</div>'
       +'<div class="award-card-val">'+w.year+'</div>'
       +'<div class="award-card-sub">'+w.time+'</div>'
+      +'</div>'
+      +bixLogo
       +'</div>';
   });
 
@@ -681,7 +685,7 @@ function buildAwardsSection(awards, bixWins){
 function raceLogoSrc(raceName){
   var base = raceName.replace(/\s*-\s*(half|full).*/i,'').trim();
   var file = base.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'') + '.png';
-  return "race%20logo's/" + file;
+  return "race%20logo%27s/" + file;
 }
 var LOGO_HEIGHTS = {
   'des_moines_marathon': 64
@@ -724,7 +728,9 @@ function buildMarathonSection(rows){
     var logoFile = logoSrc.split('/').pop().replace('.png','');
     var logoH = (LOGO_HEIGHTS[logoFile] || 44) + 'px';
     raceCards += '<div class="'+cls+'">'
-      +'<img src="'+logoSrc+'" alt="" style="display:block;height:'+logoH+';width:auto;max-width:100%;margin:0 auto 8px;object-fit:contain" onerror="this.style.display=\'none\'">'
+      +'<div style="height:64px;display:flex;align-items:center;justify-content:center;margin-bottom:8px">'
+      +'<img src="'+logoSrc+'" alt="" style="height:'+logoH+';width:auto;max-width:100%;object-fit:contain" onerror="this.style.display=\'none\'">'
+      +'</div>'
       +'<div class="'+lblCls+'">'+typeLabel+'</div>'
       +'<div class="award-card-val" style="font-size:13px;line-height:1.3">'+r.race+'</div>'
       +'<div class="award-card-sub">'+r.date+' · '+r.location+'</div>'

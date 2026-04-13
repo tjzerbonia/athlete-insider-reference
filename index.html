@@ -654,8 +654,11 @@ function buildAwardsSection(awards, bixWins){
   var qbixWins  = bixWins.filter(function(w){ return w.race==='Quick Bix'; });
 
   var bixCards = '';
+  var bixLogoH = (LOGO_HEIGHTS['bix'] || 44) + 'px';
+  var bixLogo = '<img src="race%20logo\'s/bix.png" alt="" style="display:block;height:'+bixLogoH+';width:auto;max-width:100%;margin:0 auto 8px;object-fit:contain" onerror="this.style.display=\'none\'">';
   bix7Wins.forEach(function(w){
     bixCards += '<div class="award-card award-card-bix">'
+      +bixLogo
       +'<div class="award-card-label award-label-bix">Bix 7 Fastest</div>'
       +'<div class="award-card-val">'+w.year+'</div>'
       +'<div class="award-card-sub">'+w.time+'</div>'
@@ -663,6 +666,7 @@ function buildAwardsSection(awards, bixWins){
   });
   qbixWins.forEach(function(w){
     bixCards += '<div class="award-card award-card-qbix">'
+      +bixLogo
       +'<div class="award-card-label award-label-qbix">Quick Bix Fastest</div>'
       +'<div class="award-card-val">'+w.year+'</div>'
       +'<div class="award-card-sub">'+w.time+'</div>'
@@ -679,6 +683,9 @@ function raceLogoSrc(raceName){
   var file = base.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'') + '.png';
   return "race%20logo's/" + file;
 }
+var LOGO_HEIGHTS = {
+  'des_moines_marathon': 64
+};
 function logoBadge(raceName, title){
   var src = raceLogoSrc(raceName);
   return '<div class="logo-badge" title="'+title+'">'
@@ -700,11 +707,11 @@ function buildMarathonSection(rows){
   var summaryCards = '';
   if(fullRaces.length){
     var fullPR = fullRaces.reduce(function(a,b){ return tSec(a.time)<tSec(b.time)?a:b; });
-    summaryCards += mkCard('Full Marathons', fullRaces.length, 'PR: '+fullPR.time+' ('+fullPR.year+')');
+    summaryCards += mkCard(fullRaces.length+' Full Marathon'+(fullRaces.length!==1?'s':''), fullPR.time, 'PR · '+fullPR.year);
   }
   if(halfRaces.length){
     var halfPR = halfRaces.reduce(function(a,b){ return tSec(a.time)<tSec(b.time)?a:b; });
-    summaryCards += mkCard('Half Marathons', halfRaces.length, 'PR: '+halfPR.time+' ('+halfPR.year+')');
+    summaryCards += mkCard(halfRaces.length+' Half Marathon'+(halfRaces.length!==1?'s':''), halfPR.time, 'PR · '+halfPR.year);
   }
 
   var raceCards = '';
@@ -714,8 +721,10 @@ function buildMarathonSection(rows){
     var lblCls = isFull ? 'award-card-label award-label-marathon' : 'award-card-label award-label-half';
     var typeLabel = isFull ? 'Full Marathon' : 'Half Marathon';
     var logoSrc = raceLogoSrc(r.race);
+    var logoFile = logoSrc.split('/').pop().replace('.png','');
+    var logoH = (LOGO_HEIGHTS[logoFile] || 44) + 'px';
     raceCards += '<div class="'+cls+'">'
-      +'<img src="'+logoSrc+'" alt="" style="display:block;height:44px;width:auto;max-width:100%;margin:0 auto 8px;object-fit:contain" onerror="this.style.display=\'none\'">'
+      +'<img src="'+logoSrc+'" alt="" style="display:block;height:'+logoH+';width:auto;max-width:100%;margin:0 auto 8px;object-fit:contain" onerror="this.style.display=\'none\'">'
       +'<div class="'+lblCls+'">'+typeLabel+'</div>'
       +'<div class="award-card-val" style="font-size:13px;line-height:1.3">'+r.race+'</div>'
       +'<div class="award-card-sub">'+r.date+' · '+r.location+'</div>'

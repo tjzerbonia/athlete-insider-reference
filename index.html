@@ -67,8 +67,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px;}
 .pbadge{font-family:var(--font-head);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:2px;border:1px solid;}
 .pbadge-race{background:#fff5f5;color:var(--accent);border-color:#f5c0c0;}
 .pbadge-fb{background:#f0fff0;color:var(--green);border-color:#b0d4b0;}
-.logo-badge{display:inline-flex;align-items:center;justify-content:center;height:36px;padding:3px 6px;border:1px solid var(--border);border-radius:3px;background:var(--paper2);}
-.logo-badge img{height:28px;width:auto;display:block;}
+.pbadge-marathon{background:#f0f4ff;color:#3a5fc8;border-color:#b0bfee;}
+.pbadge-half{background:#f5f0ff;color:#7a3ac8;border-color:#c8b0ee;}
 .section-hd{display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--ink);margin-bottom:14px;padding-bottom:5px;margin-top:28px;}
 .section-hd:first-child{margin-top:0;}
 .section-label{font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink);}
@@ -614,18 +614,12 @@ function loadPlayer(name){
   // Badges
   var badges = document.getElementById('p-badges');
   badges.innerHTML = '';
-  if(raceRows.length) badges.innerHTML += logoBadge('bix', 'Bix Runner');
+  if(raceRows.length) badges.innerHTML += '<span class="pbadge pbadge-race">Bix Runner</span>';
   if(fbRows.length)   badges.innerHTML += '<span class="pbadge pbadge-fb">Cheramy Bowl</span>';
-  // Deduplicate marathon logos by base race name
-  var seenLogos = {};
-  marathonRows.forEach(function(m){
-    var base = m.race.replace(/\s*-\s*(half|full).*/i,'').trim();
-    if(!seenLogos[base]){
-      seenLogos[base] = true;
-      var label = m.race + (m.type==='half' ? ' (Half)' : '');
-      badges.innerHTML += logoBadge(m.race, label);
-    }
-  });
+  var hasFullMarathon = marathonRows.some(function(m){ return m.type==='full'; });
+  var hasHalfMarathon = marathonRows.some(function(m){ return m.type==='half'; });
+  if(hasFullMarathon) badges.innerHTML += '<span class="pbadge pbadge-marathon">Marathoner</span>';
+  if(hasHalfMarathon) badges.innerHTML += '<span class="pbadge pbadge-half">Half Marathoner</span>';
 
   buildAwardsSection(awards, bixWins);
   buildMarathonSection(marathonRows);
@@ -688,7 +682,10 @@ function raceLogoSrc(raceName){
 function logoBadge(raceName, title){
   var src = raceLogoSrc(raceName);
   return '<div class="logo-badge" title="'+title+'">'
-    +'<img src="'+src+'" alt="'+title+'" onerror="this.parentElement.style.display=\'none\'">'
+    +'<img src="'+src+'" alt="'+title+'" '
+    +'onload="this.nextSibling.style.display=\'none\'" '
+    +'onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">'
+    +'<span class="logo-badge-fallback">'+title+'</span>'
     +'</div>';
 }
 
@@ -717,10 +714,10 @@ function buildMarathonSection(rows){
     var lblCls = isFull ? 'award-card-label award-label-marathon' : 'award-card-label award-label-half';
     var typeLabel = isFull ? 'Full Marathon' : 'Half Marathon';
     var logoSrc = raceLogoSrc(r.race);
-    raceCards += '<div class="'+cls+'" style="position:relative">'
-      +'<img src="'+logoSrc+'" alt="" style="position:absolute;top:8px;right:8px;height:32px;width:auto;opacity:.85" onerror="this.style.display=\'none\'">'
+    raceCards += '<div class="'+cls+'">'
+      +'<img src="'+logoSrc+'" alt="" style="display:block;height:44px;width:auto;max-width:100%;margin:0 auto 8px;object-fit:contain" onerror="this.style.display=\'none\'">'
       +'<div class="'+lblCls+'">'+typeLabel+'</div>'
-      +'<div class="award-card-val" style="font-size:13px;line-height:1.3;padding-right:36px">'+r.race+'</div>'
+      +'<div class="award-card-val" style="font-size:13px;line-height:1.3">'+r.race+'</div>'
       +'<div class="award-card-sub">'+r.date+' · '+r.location+'</div>'
       +'<div class="award-card-sub" style="font-weight:600;color:var(--ink2);margin-top:2px">'+r.time+'</div>'
       +'</div>';
